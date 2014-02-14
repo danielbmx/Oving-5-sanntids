@@ -8,13 +8,17 @@ import (
 	"fmt"
 	"time"
 	"os"
+	"os/exec"
 	"bufio"
 	"strconv"
 
 )
 
 func main(){
-
+	
+	cmd := exec.Command("mate-terminal","-x", "go", "run", "backup.go")
+	cmd.Run()
+	
 	tall := make([]int, 1)
     	tall[0] = 0
 	
@@ -75,7 +79,7 @@ func writeLines(lines []int, path string) error {
 
 
 func udp_sender() {
-    serverAddr_udp, err := net.ResolveUDPAddr("udp", "129.241.187.255:20020")
+    serverAddr_udp, err := net.ResolveUDPAddr("udp", "129.241.187.255:20022")
 	PrintError(err)
 
     con_udp, err := net.DialUDP("udp", nil, serverAddr_udp)

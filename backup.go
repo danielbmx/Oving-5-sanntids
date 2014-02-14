@@ -15,38 +15,43 @@ import (
 
 func main(){
 
-	// go udp_reciever()
-
-	backup("counting.txt")
 
 	
-}
-
-
-
-func backup(path string){
-	fmt.Println("jeg er her")
+	newBuf := make([]byte, 1024)
+    addr, err := net.ResolveUDPAddr("udp", ":20022")
+    	PrintError(err)
 	
+    sock, err := net.ListenUDP("udp", addr)
+		PrintError(err)
 
-	Check_loop:	
+
+	
+	ReadUDPloop:
 		for {
+
+			sock.SetReadDeadline(time.Now().Add(3 * time.Second))
+			byte_lest, _, err := sock.ReadFromUDP(newBuf)
 			
-			if ( !udp_reciever() ){
-				break Check_loop
+
+	        PrintError(err)
+			
+			
+	        if (byte_lest <= 0){
+				break ReadUDPloop
+
 			}
-			
-		}
+		
+    	}
 	
 	current_num,_ := readLines("counting.txt")
 	for {
-		fmt.Println(current_num[0])
 		current_num[0] = current_num[0] + 1
+		fmt.Println(current_num[0])		
 		time.Sleep(1000 * time.Millisecond)
 		writeLines(current_num, "counting.txt")
 		go udp_sender()
-	}
+	}		
 
-	
 
 
 }
@@ -89,7 +94,7 @@ func writeLines(lines []int, path string) error {
 
 
 func udp_sender() {
-    serverAddr_udp, err := net.ResolveUDPAddr("udp", "129.241.187.255:20020")
+    serverAddr_udp, err := net.ResolveUDPAddr("udp", "129.241.187.255:20022")
 	PrintError(err)
 
     con_udp, err := net.DialUDP("udp", nil, serverAddr_udp)
@@ -103,27 +108,6 @@ func udp_sender() {
 }
 
 
-
-func udp_reciever() (bool) {
-    newBuf := make([]byte, 1024)
-    addr, err := net.ResolveUDPAddr("udp", "129.241.187.145:20017")
-    PrintError(err)
-	
-    sock, err := net.ListenUDP("udp", addr)
-	PrintError(err)
-	
-	for {
-        _, _, err = sock.ReadFromUDP(newBuf)
-	fmt.Println("her")
-        PrintError(err)
-		sock.Close()
-		
-        if (string(newBuf) != "IAmAlive"){
-			return false
-		}
-	return true
-    }
-}
 
 func PrintError(err error) {
 	if err != nil{
